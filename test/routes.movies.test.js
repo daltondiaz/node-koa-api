@@ -75,5 +75,44 @@ describe('routes : movies', () => {
         });
       });
     });
+
+    describe('POST /api/v1/movies', () => {
+      it('should return the movie that was added', (done) =>{
+        chai.request(server)
+        .post('/api/v1/movies')
+        .send({
+          name: 'The fast the furious',
+          genre: 'action',
+          rating: 9,
+          explicit: true
+        })
+        .end((err, res) => {
+          should.not.exist(err);
+          res.status.should.equal(201);
+          res.type.should.equal('application/json');
+          res.body.status.should.eql('success');
+          res.body.data[0].should.include.keys(
+            'id', 'name', 'genre', 'rating', 'explicit'
+          );
+          done();
+        });
+      });
+
+      it('should throw an error if the payload is malformed', (done) => {
+        chai.request(server)
+          .post('/api/v1/movies')
+          .send({
+            name : 'The fast the furious'
+          })
+          .end((err, res) => {
+            should.exist(err);
+            res.status.should.equal(400);
+            res.type.should.equal('application/json');
+            res.body.status.should.eql('error');
+            should.exist(res.body.message);
+            done();
+          });
+      });
+    });
     
 });
